@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
 
-@Entity
+//@Entity
 @Table(name = "measurement")
 public class Measurement {
 
