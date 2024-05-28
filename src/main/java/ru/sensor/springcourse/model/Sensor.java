@@ -1,5 +1,6 @@
 package ru.sensor.springcourse.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
@@ -22,13 +23,14 @@ public class Sensor {
     @Size(min = 3, max = 30, message = "Название сенсора должно содержать от 3 до 30 символов")
     private String name;
 
-//    @OneToMany(mappedBy = "sensor")
-//    @Cascade(value = {
-//            org.hibernate.annotations.CascadeType.PERSIST,
-//            org.hibernate.annotations.CascadeType.MERGE,
-//            org.hibernate.annotations.CascadeType.REFRESH})
-//    private List<Measurement>measurements;
+    @OneToMany(mappedBy = "sensor")
+    @Cascade(value = {
+            org.hibernate.annotations.CascadeType.PERSIST,
+            org.hibernate.annotations.CascadeType.MERGE,
+            org.hibernate.annotations.CascadeType.REFRESH})
+    private List<Measurement>measurements;
 
+    @JsonIgnore
     public int getSensorId() {
         return sensorId;
     }
@@ -45,11 +47,21 @@ public class Sensor {
         this.name = name;
     }
 
-//    public List<Measurement> getMeasurements() {
-//        return measurements;
-//    }
-//
-//    public void setMeasurements(List<Measurement> measurements) {
-//        this.measurements = measurements;
-//    }
+    @JsonIgnore
+    public List<Measurement> getMeasurements() {
+        return measurements;
+    }
+
+    public void setMeasurements(List<Measurement> measurements) {
+        this.measurements = measurements;
+    }
+
+    @Override
+    public String toString() {
+        return "Sensor{" +
+                "sensorId=" + sensorId +
+                ", name='" + name + '\'' +
+                ", measurements=" + measurements +
+                '}';
+    }
 }

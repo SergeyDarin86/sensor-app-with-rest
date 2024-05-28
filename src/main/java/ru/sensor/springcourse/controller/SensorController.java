@@ -6,7 +6,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
+import ru.sensor.springcourse.dto.MeasurementDTO;
 import ru.sensor.springcourse.dto.SensorDTO;
+import ru.sensor.springcourse.service.MeasurementService;
 import ru.sensor.springcourse.service.SensorService;
 import ru.sensor.springcourse.util.SensorErrorResponse;
 import ru.sensor.springcourse.util.SensorNotCreatedException;
@@ -19,10 +21,13 @@ public class SensorController {
 
     private final SensorService sensorService;
 
+    private final MeasurementService measurementService;
+
     private final SensorValidator sensorValidator;
 
-    public SensorController(SensorService sensorService, SensorValidator sensorValidator) {
+    public SensorController(SensorService sensorService, MeasurementService measurementService, SensorValidator sensorValidator) {
         this.sensorService = sensorService;
+        this.measurementService = measurementService;
         this.sensorValidator = sensorValidator;
     }
 
@@ -33,6 +38,11 @@ public class SensorController {
     @GetMapping("/allSensors")
     public List<SensorDTO>getAllSensors(){
         return sensorService.getAllSensors();
+    }
+
+    @GetMapping("/allMeasurements")
+    public List<MeasurementDTO>getAllMeasurement(){
+        return measurementService.getAllMeasurements();
     }
 
     @PostMapping("/sensor/registration")
@@ -55,9 +65,10 @@ public class SensorController {
     }
 
     @PostMapping("/measurements/add")
-    public String addMeasurement() {
+    public MeasurementDTO addMeasurement(@RequestBody MeasurementDTO measurementDTO) {
         //TODO: добавляет измерения в БД
-        return "";
+        measurementService.createMeasurement(measurementDTO);
+        return measurementDTO;
     }
 
     @GetMapping("/measurements")

@@ -38,12 +38,13 @@ public class SensorService {
         return sensorRepository.findSensorByName(name);
     }
 
-    public Sensor show(int sensorId){
-        return sensorRepository.findById(sensorId).orElse(null);
-    }
+    //TODO: возможно этот метод лишний и его можно будет убрать
+//    public Sensor show(int sensorId){
+//        return sensorRepository.findById(sensorId).orElse(null);
+//    }
 
     public List<SensorDTO>getAllSensors(){
-        return sensorRepository.findAll().stream().map(sensor -> convertToSensorDto(sensor)).toList();
+        return sensorRepository.findAll().stream().map(this::convertToSensorDto).toList();
     }
 
 }
