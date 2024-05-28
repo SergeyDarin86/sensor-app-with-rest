@@ -8,11 +8,10 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import ru.sensor.springcourse.dto.MeasurementDTO;
 import ru.sensor.springcourse.dto.SensorDTO;
+import ru.sensor.springcourse.repository.MeasurementRepository;
 import ru.sensor.springcourse.service.MeasurementService;
 import ru.sensor.springcourse.service.SensorService;
-import ru.sensor.springcourse.util.SensorErrorResponse;
-import ru.sensor.springcourse.util.SensorNotCreatedException;
-import ru.sensor.springcourse.util.SensorValidator;
+import ru.sensor.springcourse.util.*;
 
 import java.util.List;
 
@@ -25,10 +24,13 @@ public class SensorController {
 
     private final SensorValidator sensorValidator;
 
-    public SensorController(SensorService sensorService, MeasurementService measurementService, SensorValidator sensorValidator) {
+    private final MeasurementValidator measurementValidator;
+
+    public SensorController(SensorService sensorService, MeasurementService measurementService, SensorValidator sensorValidator, MeasurementValidator measurementValidator) {
         this.sensorService = sensorService;
         this.measurementService = measurementService;
         this.sensorValidator = sensorValidator;
+        this.measurementValidator = measurementValidator;
     }
 
     /**
@@ -64,11 +66,35 @@ public class SensorController {
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
+//    @PostMapping("/measurements/add")
+//    public MeasurementDTO addMeasurement(@RequestBody @Valid MeasurementDTO measurementDTO,
+//                                         BindingResult bindingResult) {
+//        //TODO: добавляет измерения в БД
+//        measurementValidator.validate(measurementDTO,bindingResult);
+//        if (bindingResult.hasErrors()){
+//            System.out.println(bindingResult.getAllErrors());
+//        }
+//        measurementService.createMeasurement(measurementDTO);
+//        return measurementDTO;
+//    }
+
     @PostMapping("/measurements/add")
-    public MeasurementDTO addMeasurement(@RequestBody MeasurementDTO measurementDTO) {
-        //TODO: добавляет измерения в БД
+    public ResponseEntity<HttpStatus> createMeasurement(@RequestBody @Valid MeasurementDTO measurementDTO,
+                                         BindingResult bindingResult) {
+        measurementValidator.validate(measurementDTO,bindingResult);
+
+        if (bindingResult.hasErrors()) {
+            StringBuilder errorMsg = new StringBuilder();
+            List<FieldError> errorList = bindingResult.getFieldErrors();
+            errorList.stream().forEach(fieldError -> errorMsg
+                    .append(fieldError.getField())
+                    .append(" - ").append(fieldError.getDefaultMessage())
+                    .append(";"));
+
+            throw new MeasurementNotCreatedException(errorMsg.toString());
+        }
         measurementService.createMeasurement(measurementDTO);
-        return measurementDTO;
+        return ResponseEntity.ok(HttpStatus.OK);
     }
 
     @GetMapping("/measurements")
@@ -84,8 +110,18 @@ public class SensorController {
     }
 
     @ExceptionHandler
-    private ResponseEntity<SensorErrorResponse> handlerException(SensorNotCreatedException e) {
+    private ResponseEntity<SensorErrorResponse> sensorHandlerException(SensorNotCreatedException e) {
         SensorErrorResponse response = new SensorErrorResponse(
+                e.getMessage(),
+                System.currentTimeMillis()
+        );
+        // В HTTP-ответе будет тело ответа (response) и статус в заголовке http-ответа
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler
+    private ResponseEntity<MeasurementErrorResponse> measurementHandlerException(MeasurementNotCreatedException e) {
+        MeasurementErrorResponse response = new MeasurementErrorResponse(
                 e.getMessage(),
                 System.currentTimeMillis()
         );

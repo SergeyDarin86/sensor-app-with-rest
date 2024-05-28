@@ -27,6 +27,20 @@ public class MeasurementService {
         this.modelMapper = modelMapper;
     }
 
+//    @Transactional
+//    public void createMeasurement(MeasurementDTO measurementDTO){
+//
+//        Optional<Sensor>optionalSensor = sensorService.show(measurementDTO.getSensor().getName());
+//        if (optionalSensor.isPresent()){
+//            measurementDTO.getSensor().setSensorId(optionalSensor.get().getSensorId());
+//            Measurement measurement = convertToMeasurement(measurementDTO);
+//            measurement.setMeasurementDate(LocalDateTime.now());
+//            measurementRepository.save(measurement);
+//        }
+//
+//    }
+
+    // TODO: переделать данный метод
     @Transactional
     public void createMeasurement(MeasurementDTO measurementDTO){
 
