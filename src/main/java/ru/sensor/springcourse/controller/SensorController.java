@@ -42,7 +42,7 @@ public class SensorController {
         return sensorService.getAllSensors();
     }
 
-    @GetMapping("/allMeasurements")
+    @GetMapping("/measurements")
     public List<MeasurementDTO>getAllMeasurement(){
         return measurementService.getAllMeasurements();
     }
@@ -97,16 +97,9 @@ public class SensorController {
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
-    @GetMapping("/measurements")
-    public String getMeasurements() {
-        //TODO: возвращает все измерения из БД
-        return "";
-    }
-
     @GetMapping("/measurements/getRainyDaysCount")
     public String getRainyDaysCount() {
-        //TODO: возвращает количество дождливых дней из БД
-        return "";
+        return "The count of rainy days: " + measurementService.getRainyDaysCount(true);
     }
 
     @ExceptionHandler

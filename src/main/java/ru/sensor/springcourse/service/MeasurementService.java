@@ -41,6 +41,7 @@ public class MeasurementService {
 //    }
 
     // TODO: переделать данный метод
+    // TODO: попробовать убрать Optional, т.к. проверка уже идет в MeasurementValidator
     @Transactional
     public void createMeasurement(MeasurementDTO measurementDTO){
 
@@ -68,6 +69,10 @@ public class MeasurementService {
 
     public void enrichMeasurement(Measurement measurement){
         measurement.setMeasurementDate(LocalDateTime.now());
+    }
+
+    public Integer getRainyDaysCount(Boolean raining){
+        return measurementRepository.countAllByRainingIs(raining);
     }
 
 }
