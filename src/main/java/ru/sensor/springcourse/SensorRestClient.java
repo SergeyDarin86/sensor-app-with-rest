@@ -108,6 +108,7 @@ public class SensorRestClient implements WeatherChart<CategoryChart> {
         new SwingWrapper<>(charts).displayChartMatrix();
     }
 
+    // если работать с интерфейсом и его имплементировать, то использую данный метод
     @Override
     public CategoryChart getChart() {
         CategoryChart chart = new CategoryChartBuilder().width(1300).height(700).title("Stick").build();
@@ -121,6 +122,7 @@ public class SensorRestClient implements WeatherChart<CategoryChart> {
         return chart;
     }
 
+    // данный метод использую, если не имплементируется интерфейс WeatherChart
     public static CategoryChart getChartNew() throws JsonProcessingException {
         fillXAndYForChart();
 
@@ -143,10 +145,6 @@ public class SensorRestClient implements WeatherChart<CategoryChart> {
 
     // добавление измерений
     public static void addMeasurement(RestTemplate restTemplate) {
-        //создаем лист сенсоров
-        // можно попробовать получить сенсоры из БД и уже их перебирать
-        // создать нужный ендпоинт
-
         List<Sensor> sensorList = createSensorList();
 
         List<Boolean> listBoolean = new ArrayList<>();
