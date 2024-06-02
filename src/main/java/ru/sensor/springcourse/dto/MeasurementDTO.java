@@ -1,5 +1,6 @@
 package ru.sensor.springcourse.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -24,6 +25,17 @@ public class MeasurementDTO {
 
     @NotNull(message = "Поле sensor должно быть заполнено")
     private Sensor sensor;
+
+    private LocalDateTime measurementDate;
+
+//    @JsonIgnore
+    public LocalDateTime getMeasurementDate() {
+        return measurementDate;
+    }
+
+    public void setMeasurementDate(LocalDateTime measurementDate) {
+        this.measurementDate = measurementDate;
+    }
 
     public Boolean getRaining() {
         return raining;
