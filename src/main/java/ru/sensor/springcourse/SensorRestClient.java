@@ -27,10 +27,14 @@ public class SensorRestClient implements WeatherChart<CategoryChart> {
 
     public static void main(String[] args) throws JsonProcessingException {
 
+        //TODO: добавить новый эндпоинт, который будет принимать диапазон дат,
+        // чтобы можно было выводить график не для всех температур из БД
+        // иначе получаем "слипшиеся даты" по оси X, т.к. их очень много
+
 //        getAllSensors(restTemplate);
 //        registerSensor(restTemplate);
 //        addMeasurement(restTemplate);
-        getAllMeasurements();
+//        getAllMeasurements();
 //        showVisualisation(restTemplate);
 //        getRainyDaysCount(restTemplate);
 
@@ -154,16 +158,13 @@ public class SensorRestClient implements WeatherChart<CategoryChart> {
         Random random = new Random();
         for (int i = 0; i < 100; i++) {
 
-            float generatedFloat = random.nextFloat(-100, 100);
-            float newFloat = (float) (Math.round(generatedFloat * 10.0) / 10.0);
-
-            int indexBoolean = random.nextInt(listBoolean.size());
-            int indexSensor = random.nextInt(sensorList.size());
+            float generatedTemperature = random.nextFloat(-100, 100);
+            float roundTemperature = (float) (Math.round(generatedTemperature * 10.0) / 10.0);
 
             Map<String, Object> request = new HashMap<>();
-            request.put("raining", listBoolean.get(indexBoolean));
-            request.put("value", newFloat);
-            request.put("sensor", sensorList.get(indexSensor));
+            request.put("raining", listBoolean.get(random.nextInt(listBoolean.size())));
+            request.put("value", roundTemperature);
+            request.put("sensor", sensorList.get(random.nextInt(sensorList.size())));
             String urlPost = "http://localhost:8080/measurements/add";
             try {
                 HttpEntity<Map<String, Object>> httpEntity = new HttpEntity<>(request);

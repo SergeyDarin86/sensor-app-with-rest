@@ -45,10 +45,6 @@ public class MeasurementService {
         return measurementRepository.findAll().stream().map(this::convertToMeasurementDto).toList();
     }
 
-    public void enrichMeasurement(Measurement measurement) {
-        measurement.setMeasurementDate(LocalDateTime.now());
-    }
-
     public Integer getRainyDaysCount(Boolean raining) {
         return measurementRepository.countAllByRainingIs(raining);
     }

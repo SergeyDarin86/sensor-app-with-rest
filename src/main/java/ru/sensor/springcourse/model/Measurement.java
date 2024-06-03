@@ -1,6 +1,5 @@
 package ru.sensor.springcourse.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -30,11 +29,10 @@ public class Measurement {
     @Column(name = "measurement_date")
     private LocalDateTime measurementDate;
 
-    //TODO: добавить проверку на наличие такого сенсора в БД
     @ManyToOne
     @JoinColumn(name = "sensor_id", referencedColumnName = "sensor_id")
     @NotNull(message = "Поле sensor должно быть заполнено")
-//    @JsonIgnore
+
     private Sensor sensor;
 
     public Integer getMeasurementId() {
