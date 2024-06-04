@@ -1,5 +1,8 @@
 package ru.sensor.springcourse.service;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,19 +17,15 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class MeasurementService {
 
-    private final MeasurementRepository measurementRepository;
+    MeasurementRepository measurementRepository;
 
-    private final SensorService sensorService;
+    SensorService sensorService;
 
-    private final ModelMapper modelMapper;
-
-    public MeasurementService(MeasurementRepository measurementRepository, SensorService sensorService, ModelMapper modelMapper) {
-        this.measurementRepository = measurementRepository;
-        this.sensorService = sensorService;
-        this.modelMapper = modelMapper;
-    }
+    ModelMapper modelMapper;
 
     @Transactional
     public void createMeasurement(MeasurementDTO measurementDTO) {
@@ -52,6 +51,9 @@ public class MeasurementService {
         return measurementRepository.countAllByRainingIs(raining);
     }
 
+    /**
+     * работа с SearchDTO
+     */
 //    public List<MeasurementDTO> getMeasurementsBetweenDates(SearchDTO searchDTO) {
 //        return measurementRepository.findMeasurementByMeasurementDateBetween(
 //                convertedStringToLocalDate(searchDTO.getDateFrom()),
