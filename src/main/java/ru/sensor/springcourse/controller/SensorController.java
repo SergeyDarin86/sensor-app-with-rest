@@ -1,12 +1,16 @@
 package ru.sensor.springcourse.controller;
 
 import jakarta.validation.Valid;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import ru.sensor.springcourse.dto.MeasurementDTO;
+import ru.sensor.springcourse.dto.SearchDTO;
 import ru.sensor.springcourse.dto.SensorDTO;
 import ru.sensor.springcourse.repository.MeasurementRepository;
 import ru.sensor.springcourse.service.MeasurementService;
@@ -16,22 +20,17 @@ import ru.sensor.springcourse.util.*;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class SensorController {
 
-    private final SensorService sensorService;
+    SensorService sensorService;
 
-    private final MeasurementService measurementService;
+    MeasurementService measurementService;
 
-    private final SensorValidator sensorValidator;
+    SensorValidator sensorValidator;
 
-    private final MeasurementValidator measurementValidator;
-
-    public SensorController(SensorService sensorService, MeasurementService measurementService, SensorValidator sensorValidator, MeasurementValidator measurementValidator) {
-        this.sensorService = sensorService;
-        this.measurementService = measurementService;
-        this.sensorValidator = sensorValidator;
-        this.measurementValidator = measurementValidator;
-    }
+    MeasurementValidator measurementValidator;
 
     /**
      * Данный метод сделал для себя
@@ -45,6 +44,20 @@ public class SensorController {
     @GetMapping("/measurements")
     public List<MeasurementDTO>getAllMeasurement(){
         return measurementService.getAllMeasurements();
+    }
+
+//    @GetMapping("/findMeasurements")
+//    public List<MeasurementDTO>getMeasurementsBetweenDates(@RequestBody SearchDTO searchDTO){
+//        System.out.println(searchDTO.getDateFrom());
+//        System.out.println(searchDTO.getDateTo());
+//        return measurementService.getMeasurementsBetweenDates(searchDTO);
+//    }
+
+    @GetMapping("/findMeasurements/{dateFrom}/{dateTo}")
+//    @ResponseBody
+    public List<MeasurementDTO>getMeasurementsBetweenDates(@PathVariable(value = "dateFrom") String dateFrom,
+                                                           @PathVariable(value = "dateTo") String dateTo){
+        return measurementService.getMeasurementsBetweenDates(dateFrom,dateTo);
     }
 
     @PostMapping("/sensor/registration")

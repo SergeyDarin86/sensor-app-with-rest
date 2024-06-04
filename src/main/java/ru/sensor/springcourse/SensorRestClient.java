@@ -7,6 +7,8 @@ import org.knowm.xchart.*;
 import org.knowm.xchart.style.Styler;
 import org.knowm.xchart.style.markers.SeriesMarkers;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import ru.sensor.springcourse.model.Sensor;
@@ -49,7 +51,21 @@ public class SensorRestClient implements WeatherChart<CategoryChart> {
          * Без интерфейса - просто статический метод
          */
 
-        new SwingWrapper<>(getChartNew()).displayChart();
+//        new SwingWrapper<>(getChartNew()).displayChart();
+        getMeasurementsBetweenDates(restTemplate);
+    }
+
+    // метод работает с переменными из PathVariable
+    //TODO: разобраться как передать через restTemplate RequestBody (SearchDTO)
+    public static void getMeasurementsBetweenDates(RestTemplate restTemplate) {
+
+        String dateFrom = "2024-02-01";
+        String dateTo = "2024-06-01";
+        String url = "http://localhost:8080/findMeasurements/{dateFrom}/{dateTo}";
+        String response = restTemplate.getForObject(url, String.class, dateFrom,dateTo);
+
+        System.out.println(response);
+
     }
 
     // регистрация нового сенсора

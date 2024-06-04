@@ -4,10 +4,13 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.sensor.springcourse.dto.MeasurementDTO;
+import ru.sensor.springcourse.dto.SearchDTO;
 import ru.sensor.springcourse.model.Measurement;
 import ru.sensor.springcourse.repository.MeasurementRepository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -47,6 +50,26 @@ public class MeasurementService {
 
     public Integer getRainyDaysCount(Boolean raining) {
         return measurementRepository.countAllByRainingIs(raining);
+    }
+
+//    public List<MeasurementDTO> getMeasurementsBetweenDates(SearchDTO searchDTO) {
+//        return measurementRepository.findMeasurementByMeasurementDateBetween(
+//                convertedStringToLocalDate(searchDTO.getDateFrom()),
+//                convertedStringToLocalDate(searchDTO.getDateTo())
+//        ).stream().map(this::convertToMeasurementDto).toList();
+//    }
+
+    // метод работает с переменными из PathVariable
+    public List<MeasurementDTO> getMeasurementsBetweenDates(String dateFrom, String dateTo) {
+        return measurementRepository.findMeasurementByMeasurementDateBetween(
+                convertedStringToLocalDate(dateFrom),
+                convertedStringToLocalDate(dateTo)
+        ).stream().map(this::convertToMeasurementDto).toList();
+    }
+
+    public LocalDateTime convertedStringToLocalDate(String stringDate) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        return LocalDate.parse(stringDate, formatter).atStartOfDay();
     }
 
 }
