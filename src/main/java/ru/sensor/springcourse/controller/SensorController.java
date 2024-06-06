@@ -12,10 +12,12 @@ import org.springframework.web.bind.annotation.*;
 import ru.sensor.springcourse.dto.MeasurementDTO;
 import ru.sensor.springcourse.dto.SearchDTO;
 import ru.sensor.springcourse.dto.SensorDTO;
-import ru.sensor.springcourse.repository.MeasurementRepository;
 import ru.sensor.springcourse.service.MeasurementService;
 import ru.sensor.springcourse.service.SensorService;
 import ru.sensor.springcourse.util.*;
+import ru.sensor.springcourse.util.searchDTOException.SearchDTOErrorResponse;
+import ru.sensor.springcourse.util.searchDTOException.SearchDTONotValidException;
+import ru.sensor.springcourse.util.searchDTOException.SearchDTOValidator;
 
 import java.util.List;
 
@@ -32,6 +34,8 @@ public class SensorController {
 
     MeasurementValidator measurementValidator;
 
+    SearchDTOValidator searchDTOValidator;
+
     /**
      * Данный метод сделал для себя
      * @return
@@ -46,15 +50,29 @@ public class SensorController {
         return measurementService.getAllMeasurements();
     }
 
-//    @GetMapping("/findMeasurements")
-//    public List<MeasurementDTO>getMeasurementsBetweenDates(@RequestBody SearchDTO searchDTO){
-//        System.out.println(searchDTO.getDateFrom());
-//        System.out.println(searchDTO.getDateTo());
-//        return measurementService.getMeasurementsBetweenDates(searchDTO);
-//    }
+    //Пример работы с @RequestBody
+    @PostMapping("/findMeasurements")
+    public List<MeasurementDTO>getMeasurementsBetweenDates(@RequestBody @Valid SearchDTO searchDTO,
+                                                           BindingResult bindingResult){
+        searchDTOValidator.validate(searchDTO,bindingResult);
 
+        System.out.println(searchDTO.getDateFrom() + " <- controller");
+
+        if (bindingResult.hasErrors()) {
+            StringBuilder errorMsg = new StringBuilder();
+            List<FieldError> errorList = bindingResult.getFieldErrors();
+            errorList.stream().forEach(fieldError -> errorMsg
+                    .append(fieldError.getField())
+                    .append(" - ").append(fieldError.getDefaultMessage())
+                    .append(";"));
+
+            throw new SearchDTONotValidException(errorMsg.toString());
+        }
+        return measurementService.getMeasurementsBetweenDatesWithSearchDTO(searchDTO);
+    }
+
+    //Пример работы с @PathVariable
     @GetMapping("/findMeasurements/{dateFrom}/{dateTo}")
-//    @ResponseBody
     public List<MeasurementDTO>getMeasurementsBetweenDates(@PathVariable(value = "dateFrom") String dateFrom,
                                                            @PathVariable(value = "dateTo") String dateTo){
         return measurementService.getMeasurementsBetweenDates(dateFrom,dateTo);
@@ -78,18 +96,6 @@ public class SensorController {
         sensorService.createSensor(sensorDTO);
         return ResponseEntity.ok(HttpStatus.OK);
     }
-
-//    @PostMapping("/measurements/add")
-//    public MeasurementDTO addMeasurement(@RequestBody @Valid MeasurementDTO measurementDTO,
-//                                         BindingResult bindingResult) {
-//        //TODO: добавляет измерения в БД
-//        measurementValidator.validate(measurementDTO,bindingResult);
-//        if (bindingResult.hasErrors()){
-//            System.out.println(bindingResult.getAllErrors());
-//        }
-//        measurementService.createMeasurement(measurementDTO);
-//        return measurementDTO;
-//    }
 
     @PostMapping("/measurements/add")
     public ResponseEntity<HttpStatus> createMeasurement(@RequestBody @Valid MeasurementDTO measurementDTO,
@@ -132,6 +138,15 @@ public class SensorController {
                 System.currentTimeMillis()
         );
         // В HTTP-ответе будет тело ответа (response) и статус в заголовке http-ответа
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler
+    private ResponseEntity<SearchDTOErrorResponse> searchDTOHandlerException(SearchDTONotValidException e) {
+        SearchDTOErrorResponse response = new SearchDTOErrorResponse(
+                e.getMessage(),
+                System.currentTimeMillis()
+        );
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 

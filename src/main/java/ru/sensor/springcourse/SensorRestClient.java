@@ -7,17 +7,22 @@ import org.knowm.xchart.*;
 import org.knowm.xchart.style.Styler;
 import org.knowm.xchart.style.markers.SeriesMarkers;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import ru.sensor.springcourse.dto.MeasurementDTO;
+import ru.sensor.springcourse.dto.SearchDTO;
 import ru.sensor.springcourse.model.Sensor;
 
 import java.awt.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.List;
 
-//TODO: 1) разобраться как передавать SearchDTO + чтобы поля dateFrom/dateTo были LocalDate
+//TODO: 1) + разобраться как передавать SearchDTO + чтобы поля dateFrom/dateTo были LocalDate
 //      2) добавить валидацию на вводимые параметры dateFrom/dateTo
 
 public class SensorRestClient implements WeatherChart<CategoryChart> {
@@ -56,9 +61,12 @@ public class SensorRestClient implements WeatherChart<CategoryChart> {
          * Без интерфейса - просто статический метод
          */
 
-        new SwingWrapper<>(getChartNew()).displayChart();
+//        new SwingWrapper<>(getChartNew()).displayChart();
 
-        getMeasurementsBetweenDates(restTemplate);
+//        getMeasurementsBetweenDates(restTemplate);
+
+        getMeasurementsBetweenDatesWithSearchDTO(restTemplate);
+//        getAllMeasurements();
     }
 
     // регистрация нового сенсора
@@ -83,7 +91,43 @@ public class SensorRestClient implements WeatherChart<CategoryChart> {
 
     // получение всех измерений
     public static void getAllMeasurements() {
-        System.out.println(responseForGet);
+//        System.out.println(responseForGet);
+
+        // получение ответа с помощью ResponseEntity
+        ResponseEntity<MeasurementDTO[]> response = restTemplate.getForEntity(urlGetMeasurements, MeasurementDTO[].class);
+        MeasurementDTO[] measurementDTOs = response.getBody();
+        Arrays.stream(measurementDTOs).toList().stream()
+                .forEach(measurementDTO -> System.out.println(measurementDTO));
+    }
+
+    // метод работает с переменными из PathVariable
+    public static void getMeasurementsBetweenDates(RestTemplate restTemplate) {
+
+        String url = "http://localhost:8080/findMeasurements/{dateFrom}/{dateTo}";
+        String response = restTemplate.getForObject(url, String.class, dateFrom, dateTo);
+
+        System.out.println(response);
+
+    }
+
+    //В данном случе мы работаем с PostMapping вместо GetMapping
+    public static void getMeasurementsBetweenDatesWithSearchDTO(RestTemplate restTemplate) {
+
+        String url = "http://localhost:8080/findMeasurements";
+        SearchDTO searchDTO = new SearchDTO();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        searchDTO.setDateTo(LocalDate.parse("2024-05-31", formatter));
+        searchDTO.setDateFrom(LocalDate.parse("2024-02-01", formatter));
+
+        String response = restTemplate.postForObject(url, searchDTO, String.class);
+        System.out.println(response);
+
+        //работа с ResponseEntity вместо String
+        ResponseEntity<MeasurementDTO[]> responseEntity = restTemplate.postForEntity(url, searchDTO,MeasurementDTO[].class);
+        MeasurementDTO[] measurementDTOs = responseEntity.getBody();
+        Arrays.stream(measurementDTOs).toList().stream()
+                .forEach(measurementDTO -> System.out.println(measurementDTO));
+
     }
 
     // получение количества дождливых дней
@@ -167,17 +211,6 @@ public class SensorRestClient implements WeatherChart<CategoryChart> {
             Collections.sort(dateTimes);
             temperatures.add(value);
         }
-    }
-
-    // метод работает с переменными из PathVariable
-    //TODO: разобраться как передать через restTemplate RequestBody (SearchDTO)
-    public static void getMeasurementsBetweenDates(RestTemplate restTemplate) {
-
-        String url = "http://localhost:8080/findMeasurements/{dateFrom}/{dateTo}";
-        String response = restTemplate.getForObject(url, String.class, dateFrom, dateTo);
-
-        System.out.println(response);
-
     }
 
     // можно работать с серией диаграмм

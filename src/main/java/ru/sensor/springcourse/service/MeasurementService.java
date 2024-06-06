@@ -54,12 +54,11 @@ public class MeasurementService {
     /**
      * работа с SearchDTO
      */
-//    public List<MeasurementDTO> getMeasurementsBetweenDates(SearchDTO searchDTO) {
-//        return measurementRepository.findMeasurementByMeasurementDateBetween(
-//                convertedStringToLocalDate(searchDTO.getDateFrom()),
-//                convertedStringToLocalDate(searchDTO.getDateTo())
-//        ).stream().map(this::convertToMeasurementDto).toList();
-//    }
+    public List<MeasurementDTO> getMeasurementsBetweenDatesWithSearchDTO(SearchDTO searchDTO) {
+        return measurementRepository.findMeasurementByMeasurementDateBetween(
+                searchDTO.getDateFrom().atStartOfDay(), searchDTO.getDateTo().atStartOfDay()
+        ).stream().map(this::convertToMeasurementDto).toList();
+    }
 
     // метод работает с переменными из PathVariable
     public List<MeasurementDTO> getMeasurementsBetweenDates(String dateFrom, String dateTo) {

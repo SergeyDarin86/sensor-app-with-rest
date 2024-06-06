@@ -66,7 +66,7 @@ public class MeasurementDTO {
         return "MeasurementDTO{" +
                 "raining=" + raining +
                 ", value=" + value +
-                ", sensor=" + sensor +
+                ", sensor=" + sensor.getName() +
                 '}';
     }
 }
