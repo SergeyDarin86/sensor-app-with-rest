@@ -28,9 +28,9 @@ public class SearchDTOValidator implements Validator {
     public void validate(Object target, Errors errors) {
         SearchDTO searchDTO = (SearchDTO) target;
 
-//        if (!dateValidatorUsingLocalDate.isValid(searchDTO.getDateFrom().toString())){
-//            errors.rejectValue("dateFrom", "", " Невалид");
-//        }
+        if (searchDTO.getDateFrom().equals(null)){
+            errors.rejectValue("dateFrom", "", " Невалид");
+        }
 
         if (searchDTO.getDateFrom().isAfter(searchDTO.getDateTo()) || searchDTO.getDateFrom().equals(searchDTO.getDateTo())) {
             errors.rejectValue("dateFrom", "", " dateFrom должна быть до dateTo");

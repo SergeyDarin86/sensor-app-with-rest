@@ -3,6 +3,7 @@ package ru.sensor.springcourse.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +14,7 @@ import ru.sensor.springcourse.repository.SensorRepository;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -39,12 +41,8 @@ public class SensorService {
         return sensorRepository.findSensorByName(name);
     }
 
-    //TODO: возможно этот метод лишний и его можно будет убрать
-//    public Sensor show(int sensorId){
-//        return sensorRepository.findById(sensorId).orElse(null);
-//    }
-
     public List<SensorDTO>getAllSensors(){
+        log.info("Start method getAllSensors of sensorService");
         return sensorRepository.findAll().stream().map(this::convertToSensorDto).toList();
     }
 

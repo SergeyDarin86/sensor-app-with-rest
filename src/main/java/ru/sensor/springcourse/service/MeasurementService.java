@@ -3,6 +3,7 @@ package ru.sensor.springcourse.service;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -44,10 +46,12 @@ public class MeasurementService {
     }
 
     public List<MeasurementDTO> getAllMeasurements() {
+        log.info("Start method getAllMeasurements");
         return measurementRepository.findAll().stream().map(this::convertToMeasurementDto).toList();
     }
 
     public Integer getRainyDaysCount(Boolean raining) {
+        log.info("Start method getRainyDaysCount; raining is: {}", raining);
         return measurementRepository.countAllByRainingIs(raining);
     }
 
@@ -55,6 +59,7 @@ public class MeasurementService {
      * работа с SearchDTO
      */
     public List<MeasurementDTO> getMeasurementsBetweenDatesWithSearchDTO(SearchDTO searchDTO) {
+        log.info("Start method getMeasurementsBetweenDatesWithSearchDTO of measurementService; dateFrom is: {}, dateTo is: {}", searchDTO.getDateFrom(), searchDTO.getDateTo());
         return measurementRepository.findMeasurementByMeasurementDateBetween(
                 searchDTO.getDateFrom().atStartOfDay(), searchDTO.getDateTo().atStartOfDay()
         ).stream().map(this::convertToMeasurementDto).toList();
@@ -62,6 +67,7 @@ public class MeasurementService {
 
     // метод работает с переменными из PathVariable
     public List<MeasurementDTO> getMeasurementsBetweenDates(String dateFrom, String dateTo) {
+        log.info("Start method getMeasurementsBetweenDates of measurementService; dateFrom is: {}, dateTo is: {}", dateFrom, dateTo);
         return measurementRepository.findMeasurementByMeasurementDateBetween(
                 convertedStringToLocalDate(dateFrom),
                 convertedStringToLocalDate(dateTo)
