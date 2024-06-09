@@ -61,7 +61,7 @@ public class SensorRestClient implements WeatherChart<CategoryChart> {
          * Без интерфейса - просто статический метод
          */
 
-//        new SwingWrapper<>(getChartNew()).displayChart();
+        new SwingWrapper<>(getChartNew()).displayChart();
 
 //        getMeasurementsBetweenDates(restTemplate);
 
