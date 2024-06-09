@@ -27,14 +27,14 @@ public class MeasurementController {
     SearchDTOValidator searchDTOValidator;
 
     @GetMapping("/measurements")
-    public List<MeasurementDTO> getAllMeasurement() {
+    public MeasurementResponse getAllMeasurement() {
         return measurementService.getAllMeasurements();
     }
 
     //Пример работы с @RequestBody
     @PostMapping("/findMeasurements")
-    public List<MeasurementDTO> getMeasurementsBetweenDates(@RequestBody @Valid SearchDTO searchDTO,
-                                                            BindingResult bindingResult) {
+    public MeasurementResponse getMeasurementsBetweenDates(@RequestBody @Valid SearchDTO searchDTO,
+                                                           BindingResult bindingResult) {
         searchDTOValidator.validate(searchDTO, bindingResult);
 
         ExceptionBuilder.buildErrorMessageForClient(bindingResult);

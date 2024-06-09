@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.sensor.springcourse.dto.SensorDTO;
 import ru.sensor.springcourse.model.Sensor;
 import ru.sensor.springcourse.repository.SensorRepository;
+import ru.sensor.springcourse.util.SensorResponse;
 
 import java.util.List;
 import java.util.Optional;
@@ -41,9 +42,9 @@ public class SensorService {
         return sensorRepository.findSensorByName(name);
     }
 
-    public List<SensorDTO>getAllSensors(){
+    public SensorResponse getAllSensors(){
         log.info("Start method getAllSensors of sensorService");
-        return sensorRepository.findAll().stream().map(this::convertToSensorDto).toList();
+        return new SensorResponse(sensorRepository.findAll().stream().map(this::convertToSensorDto).toList());
     }
 
 }

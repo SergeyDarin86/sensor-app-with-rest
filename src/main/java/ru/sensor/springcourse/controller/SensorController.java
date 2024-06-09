@@ -24,7 +24,7 @@ public class SensorController {
     SensorValidator sensorValidator;
 
     @GetMapping("/allSensors")
-    public List<SensorDTO> getAllSensors() {
+    public SensorResponse getAllSensors() {
         return sensorService.getAllSensors();
     }
 

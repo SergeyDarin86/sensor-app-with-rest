@@ -11,6 +11,7 @@ import ru.sensor.springcourse.dto.MeasurementDTO;
 import ru.sensor.springcourse.dto.SearchDTO;
 import ru.sensor.springcourse.model.Measurement;
 import ru.sensor.springcourse.repository.MeasurementRepository;
+import ru.sensor.springcourse.util.MeasurementResponse;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -45,9 +46,9 @@ public class MeasurementService {
         return modelMapper.map(measurement, MeasurementDTO.class);
     }
 
-    public List<MeasurementDTO> getAllMeasurements() {
+    public MeasurementResponse getAllMeasurements() {
         log.info("Start method getAllMeasurements");
-        return measurementRepository.findAll().stream().map(this::convertToMeasurementDto).toList();
+        return new MeasurementResponse(measurementRepository.findAll().stream().map(this::convertToMeasurementDto).toList());
     }
 
     public Integer getRainyDaysCount(Boolean raining) {
@@ -58,11 +59,11 @@ public class MeasurementService {
     /**
      * работа с SearchDTO
      */
-    public List<MeasurementDTO> getMeasurementsBetweenDatesWithSearchDTO(SearchDTO searchDTO) {
+    public MeasurementResponse getMeasurementsBetweenDatesWithSearchDTO(SearchDTO searchDTO) {
         log.info("Start method getMeasurementsBetweenDatesWithSearchDTO of measurementService; dateFrom is: {}, dateTo is: {}", searchDTO.getDateFrom(), searchDTO.getDateTo());
-        return measurementRepository.findMeasurementByMeasurementDateBetween(
+        return new MeasurementResponse(measurementRepository.findMeasurementByMeasurementDateBetween(
                 searchDTO.getDateFrom().atStartOfDay(), searchDTO.getDateTo().atStartOfDay()
-        ).stream().map(this::convertToMeasurementDto).toList();
+        ).stream().map(this::convertToMeasurementDto).toList());
     }
 
     // метод работает с переменными из PathVariable
