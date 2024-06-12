@@ -6,11 +6,14 @@ import java.util.List;
 
 public class MeasurementResponse {
 
+    public MeasurementResponse() {
+    }
+
     public MeasurementResponse(List<MeasurementDTO> measurementDTOS) {
         this.measurementDTOS = measurementDTOS;
     }
 
-    private List<MeasurementDTO>measurementDTOS;
+    private List<MeasurementDTO> measurementDTOS;
 
     public List<MeasurementDTO> getMeasurementDTOS() {
         return measurementDTOS;

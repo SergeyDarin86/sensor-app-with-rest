@@ -13,6 +13,7 @@ import org.springframework.web.client.RestTemplate;
 import ru.sensor.springcourse.dto.MeasurementDTO;
 import ru.sensor.springcourse.dto.SearchDTO;
 import ru.sensor.springcourse.model.Sensor;
+import ru.sensor.springcourse.util.MeasurementResponse;
 
 import java.awt.*;
 import java.time.LocalDate;
@@ -31,9 +32,9 @@ public class SensorRestClient implements WeatherChart<CategoryChart> {
     static List<Float> temperatures = new ArrayList<>();
     static String urlGetMeasurements = "http://localhost:8080/measurements";
 
-    static String responseForGet = restTemplate.getForObject(urlGetMeasurements, String.class);
-
     static String urlGetMeasurementsBetweenDates = "http://localhost:8080/findMeasurements/{dateFrom}/{dateTo}";
+
+    static String responseForGet = restTemplate.getForObject(urlGetMeasurements, String.class);
 
     static String dateFrom = "2024-02-01";
 
@@ -44,11 +45,12 @@ public class SensorRestClient implements WeatherChart<CategoryChart> {
     public static void main(String[] args) throws JsonProcessingException {
 
 //        getAllSensors(restTemplate);
-//        registerSensor(restTemplate);
+        registerSensor(restTemplate);
 //        addMeasurement(restTemplate);
 //        getAllMeasurements();
 //        showVisualisation(restTemplate);
 //        getRainyDaysCount(restTemplate);
+//        addSingleMeasurement(restTemplate);
 
         /**
          * пример создания диаграммы с использованием интерфейса WeatherChart
@@ -61,26 +63,21 @@ public class SensorRestClient implements WeatherChart<CategoryChart> {
          * Без интерфейса - просто статический метод
          */
 
-        new SwingWrapper<>(getChartNew()).displayChart();
+//        new SwingWrapper<>(getChartNew()).displayChart();
 
 //        getMeasurementsBetweenDates(restTemplate);
 
-        getMeasurementsBetweenDatesWithSearchDTO(restTemplate);
+//        getMeasurementsBetweenDatesWithSearchDTO(restTemplate);
 //        getAllMeasurements();
     }
 
     // регистрация нового сенсора
     public static void registerSensor(RestTemplate restTemplate) {
-        Map<String, String> request = new HashMap<>();
-        request.put("name", "sensorC");
+        Map<String, Object> jsonData = new HashMap<>();
+        jsonData.put("name", "sensorK");
         String urlPost = "http://localhost:8080/sensor/registration";
-        try {
-            HttpEntity<Map<String, String>> httpEntity = new HttpEntity<>(request);
-            String responseForPost = restTemplate.postForObject(urlPost, httpEntity, String.class);
-            System.out.println(responseForPost);
-        } catch (HttpClientErrorException e) {
-            System.out.println(e.getMessage());
-        }
+
+        makePostRequestWithJSONData(restTemplate,jsonData,urlPost);
     }
 
     public static void getAllSensors(RestTemplate restTemplate) {
@@ -91,13 +88,30 @@ public class SensorRestClient implements WeatherChart<CategoryChart> {
 
     // получение всех измерений
     public static void getAllMeasurements() {
-//        System.out.println(responseForGet);
+        String urlGetMeasurements = "http://localhost:8080/measurements";
+        MeasurementResponse responseForGet = restTemplate.getForObject(urlGetMeasurements, MeasurementResponse.class);
+
+        assert responseForGet != null;
+        responseForGet.getMeasurementDTOS().forEach(System.out::println);
+
+        /**
+         * После того как сделал отдельный класс MeasurementResponse на сервере
+         * данный способ перестал работать
+         */
+        // TODO: Причина была в том, что отсутствовал "конструктор по умолчанию" в MeasurementResponse
+        // TODO: сделать об этом запись
 
         // получение ответа с помощью ResponseEntity
-        ResponseEntity<MeasurementDTO[]> response = restTemplate.getForEntity(urlGetMeasurements, MeasurementDTO[].class);
-        MeasurementDTO[] measurementDTOs = response.getBody();
-        Arrays.stream(measurementDTOs).toList().stream()
-                .forEach(measurementDTO -> System.out.println(measurementDTO));
+//        ResponseEntity<MeasurementDTO[]> response = restTemplate.getForEntity(urlGetMeasurements, MeasurementDTO[].class);
+//        MeasurementDTO[] measurementDTOs = response.getBody();
+//        Arrays.stream(measurementDTOs).toList().stream()
+//                .forEach(measurementDTO -> System.out.println(measurementDTO));
+
+//        ResponseEntity<MeasurementResponse> response = restTemplate.getForEntity(urlGetMeasurements, MeasurementResponse.class);
+//        MeasurementResponse measurementDTOs = response.getBody();
+//        measurementDTOs.getMeasurementDTOS().stream()
+//                .forEach(measurementDTO -> System.out.println(measurementDTO));
+
     }
 
     // метод работает с переменными из PathVariable
@@ -123,7 +137,7 @@ public class SensorRestClient implements WeatherChart<CategoryChart> {
         System.out.println(response);
 
         //работа с ResponseEntity вместо String
-        ResponseEntity<MeasurementDTO[]> responseEntity = restTemplate.postForEntity(url, searchDTO,MeasurementDTO[].class);
+        ResponseEntity<MeasurementDTO[]> responseEntity = restTemplate.postForEntity(url, searchDTO, MeasurementDTO[].class);
         MeasurementDTO[] measurementDTOs = responseEntity.getBody();
         Arrays.stream(measurementDTOs).toList().stream()
                 .forEach(measurementDTO -> System.out.println(measurementDTO));
@@ -138,12 +152,36 @@ public class SensorRestClient implements WeatherChart<CategoryChart> {
     }
 
     // добавление измерений
+    public static void addSingleMeasurement(RestTemplate restTemplate) {
+        String urlPost = "http://localhost:8080/measurements/add";
+        Random random = new Random();
+
+        float generatedTemperature = random.nextFloat(-100, 100);
+        float roundTemperature = (float) (Math.round(generatedTemperature * 10.0) / 10.0);
+
+        Map<String, Object> jsonData = new HashMap<>();
+        jsonData.put("raining", random.nextBoolean());
+        jsonData.put("value", roundTemperature);
+        jsonData.put("sensor", Map.of("name", "sensor"));
+
+        makePostRequestWithJSONData(restTemplate, jsonData, urlPost);
+    }
+
+    public static void makePostRequestWithJSONData(RestTemplate restTemplate, Map<String, Object> jsonData, String urlPost) {
+        HttpEntity<Map<String, Object>> httpEntity = new HttpEntity<>(jsonData);
+        try {
+            String responseForPost = restTemplate.postForObject(urlPost, httpEntity, String.class);
+            System.out.println(responseForPost + " - Запрос успешно отправлен");
+        } catch (HttpClientErrorException e) {
+            System.out.println("Ошибка");
+            System.out.println(e.getMessage());
+        }
+    }
+
+    // добавление измерений
     public static void addMeasurement(RestTemplate restTemplate) {
         List<Sensor> sensorList = createSensorList();
-
-        List<Boolean> listBoolean = new ArrayList<>();
-        listBoolean.add(true);
-        listBoolean.add(false);
+        String urlPost = "http://localhost:8080/measurements/add";
 
         Random random = new Random();
         for (int i = 0; i < 10; i++) {
@@ -151,18 +189,12 @@ public class SensorRestClient implements WeatherChart<CategoryChart> {
             float generatedTemperature = random.nextFloat(-100, 100);
             float roundTemperature = (float) (Math.round(generatedTemperature * 10.0) / 10.0);
 
-            Map<String, Object> request = new HashMap<>();
-            request.put("raining", listBoolean.get(random.nextInt(listBoolean.size())));
-            request.put("value", roundTemperature);
-            request.put("sensor", sensorList.get(random.nextInt(sensorList.size())));
-            String urlPost = "http://localhost:8080/measurements/add";
-            try {
-                HttpEntity<Map<String, Object>> httpEntity = new HttpEntity<>(request);
-                String responseForPost = restTemplate.postForObject(urlPost, httpEntity, String.class);
-                System.out.println(responseForPost);
-            } catch (HttpClientErrorException e) {
-                System.out.println(e.getMessage());
-            }
+            Map<String, Object> jsonData = new HashMap<>();
+            jsonData.put("raining", random.nextBoolean());
+            jsonData.put("value", roundTemperature);
+            jsonData.put("sensor", sensorList.get(random.nextInt(sensorList.size())));
+
+            makePostRequestWithJSONData(restTemplate,jsonData,urlPost);
         }
 
     }
