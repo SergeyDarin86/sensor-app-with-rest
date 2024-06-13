@@ -27,6 +27,7 @@ public class SensorService {
 
     @Transactional
     public void createSensor(SensorDTO sensorDTO){
+        log.info("Start method createSensor of sensorService; sensorName is, {}", sensorDTO.getName());
         sensorRepository.save(convertToSensor(sensorDTO));
     }
 

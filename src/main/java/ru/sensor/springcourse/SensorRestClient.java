@@ -23,9 +23,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.List;
 
-//TODO: 1) + разобраться как передавать SearchDTO + чтобы поля dateFrom/dateTo были LocalDate
-//      2) добавить валидацию на вводимые параметры dateFrom/dateTo
-
 public class SensorRestClient implements WeatherChart<CategoryChart> {
     static RestTemplate restTemplate = new RestTemplate();
     static List<Date> dateTimes = new ArrayList<>();
@@ -45,7 +42,7 @@ public class SensorRestClient implements WeatherChart<CategoryChart> {
     public static void main(String[] args) throws JsonProcessingException {
 
 //        getAllSensors(restTemplate);
-        registerSensor(restTemplate);
+//        registerSensor(restTemplate);
 //        addMeasurement(restTemplate);
 //        getAllMeasurements();
 //        showVisualisation(restTemplate);
@@ -68,7 +65,7 @@ public class SensorRestClient implements WeatherChart<CategoryChart> {
 //        getMeasurementsBetweenDates(restTemplate);
 
 //        getMeasurementsBetweenDatesWithSearchDTO(restTemplate);
-//        getAllMeasurements();
+        getAllMeasurements();
     }
 
     // регистрация нового сенсора
@@ -130,17 +127,26 @@ public class SensorRestClient implements WeatherChart<CategoryChart> {
         String url = "http://localhost:8080/findMeasurements";
         SearchDTO searchDTO = new SearchDTO();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        searchDTO.setDateFrom(LocalDate.parse("2024-01-01", formatter));
         searchDTO.setDateTo(LocalDate.parse("2024-05-31", formatter));
-        searchDTO.setDateFrom(LocalDate.parse("2024-02-01", formatter));
 
-        String response = restTemplate.postForObject(url, searchDTO, String.class);
-        System.out.println(response);
+        MeasurementResponse response = restTemplate.postForObject(url, searchDTO, MeasurementResponse.class);
+        System.out.println(response.getMeasurementDTOS());
 
         //работа с ResponseEntity вместо String
-        ResponseEntity<MeasurementDTO[]> responseEntity = restTemplate.postForEntity(url, searchDTO, MeasurementDTO[].class);
-        MeasurementDTO[] measurementDTOs = responseEntity.getBody();
-        Arrays.stream(measurementDTOs).toList().stream()
-                .forEach(measurementDTO -> System.out.println(measurementDTO));
+        /**
+         * после того как применил MeasurementsResponse данный способ выкидывает исключение
+         */
+//        ResponseEntity<MeasurementDTO[]> responseEntity = restTemplate.postForEntity(url, searchDTO, MeasurementDTO[].class);
+//        MeasurementDTO[] measurementDTOs = responseEntity.getBody();
+//        assert measurementDTOs != null;
+//        Arrays.stream(measurementDTOs).toList()
+//                .forEach(System.out::println);
+
+//        ResponseEntity<MeasurementResponse> responseEntity = restTemplate.postForEntity(url, searchDTO, MeasurementResponse.class);
+//        MeasurementResponse measurementDTOs = responseEntity.getBody();
+//        assert measurementDTOs != null;
+//        measurementDTOs.getMeasurementDTOS().forEach(System.out::println);
 
     }
 
