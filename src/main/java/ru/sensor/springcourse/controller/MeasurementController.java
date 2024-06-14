@@ -31,7 +31,6 @@ public class MeasurementController {
         return measurementService.getAllMeasurements();
     }
 
-    //Пример работы с @RequestBody
     @PostMapping("/findMeasurements")
     public MeasurementResponse getMeasurementsBetweenDates(@RequestBody @Valid SearchDTO searchDTO,
                                                            BindingResult bindingResult) {
